@@ -9,7 +9,7 @@
         <div class="card-body border-bottom py-3">
             <div class="d-flex">
               <div class="text-muted">
-                <a href="#" class="btn btn-primary btn-sm btn-loader">Create</a>
+                <a href="{{ route('user.create') }}" class="btn btn-primary btn-sm btn-loader">Create</a>
               </div>
               <div class="ms-auto text-muted">
                 <form>

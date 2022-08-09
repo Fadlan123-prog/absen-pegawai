@@ -36,6 +36,7 @@
     <link rel="stylesheet" href="{{ asset('assets/auth/vendor/css/core.css')}}" >
     <link rel="stylesheet" href="{{ asset('assets/auth/vendor/css/theme-default.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/auth/css/demo.css')}}" />
+    @yield('css')
     <!-- Vendors CSS -->
     <link rel="stylesheet" href="{{ asset('assets/auth/vendor/libs/perfect-scrollbar/perfect-scrollbar.css')}}" class="template-customizer-core-css" />
 
@@ -97,5 +98,6 @@
 
     <!-- Place this tag in your head or just before your close body tag. -->
     <script async defer src="https://buttons.github.io/buttons.js"></script>
+    @yield('js')
   </body>
 </html>
