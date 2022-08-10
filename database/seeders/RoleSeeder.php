@@ -17,5 +17,16 @@ class RoleSeeder extends Seeder
     {
         $admin = Role::create(['name' => 'admin']);
         $user = Role::create(['name' => 'user']);
+
+        $dashboard = Permission::create(['name' => 'dashboard']);
+        $userManagement = Permission::create(['name' => 'userManagement']);
+
+        //admin
+        $admin->givePermissionTo($dashboard);
+        $admin->givePermissionTo($userManagement);
+        
+
+        //user
+        $user->givePermissionTo($dashboard);
     }
 }

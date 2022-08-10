@@ -5,14 +5,15 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Spatie\Permission\Models\Role;
-use Validator, Lang, Session, Hash, Storage, Image, Str;
+use Validator, Lang, Session, Hash, Storage, Str, Image;
 
 class UserController extends Controller
 {
     public function index(Request $request){
         $search = $request->search;
 
-        $datas = User::when($search, function($query, $search){
+        $datas = User::with('roles')
+        ->when($search, function($query, $search){
             return $query->where('name', 'like', "%$search%");
         })
         ->orderBy('id', 'DESC')
@@ -63,9 +64,7 @@ class UserController extends Controller
         $data->password = Hash::make($request->password);
         $data->phone = $request->phone;
 
-        if($request->hasFile('photo_url')) {
-            $this->saveImage($request->file('photo_url'), $data);
-        }
+        $this->saveImage($request->file, $data);
 
         try {
             $role = Role::find($request->role_id);
@@ -81,8 +80,78 @@ class UserController extends Controller
         return redirect()->route('user.index');
     }
 
+    public function edit($id)
+    {
+        try {
+            $data = User::where('id', $id)->first();
+        } catch (\Exception $errors) {
+            return redirect()->back()
+            ->withInput()->withErrors(['message' => Lang::get('web.data-not-found')]);
+        }
+
+        $roles = Role::all();
+        
+        return view('page.user.edit', compact('data', 'roles'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $messages = [
+            'username.unique' => Lang::get('web.username-unique'),
+            'username.required' => Lang::get('web.username-required'),
+            'name.required' => Lang::get('web.name-required'),
+            'role_id.integer' => Lang::get('web.role_id-integer'),
+            'confirmPassword.same' => Lang::get('web.confirm-password-same'),
+        ];
+    
+        $validator = Validator::make($request->all(), [
+            'username' => 'required|unique:users,username',
+            'name' => 'required',
+            'role_id' => 'integer',
+            'confirmPassword' => 'same:password',
+            
+        ], $messages);
+    
+        if($validator->fails())
+        {
+            $validator->errors()->add('message', Lang::get('web.update-failed'));
+            return redirect()->back()->withInput()->withErrors($validator);
+        }
+
+        try{
+            $data = User::find($id);
+        } catch(\Exception $errors) {
+            return redirect()->back()
+            ->withInput()->withErrors(['message' => Lang::get('web.update-failed')]);
+        }
+
+        $data->username = $request->username;
+        $data->name = $request->name;
+        if($request->has('password'));
+        $data->password = Hash::make($request->password);
+        
+        if($request->has('file'))
+        {
+            $this->deleteImage($data->photo_path);
+            $this->saveImage($request->file, $data);  
+        }   
+              
+        try{
+            $role = Role::find($id);
+
+            $data->save();
+            $data->roles()->sync([$request->input('role_id')]);
+        } catch(\Exception $errors) {
+            return redirect()->back()
+            ->withInput()->withErrors(['message' => Lang::get('web.update-failed')]);           
+        }
+        
+        Session::flash('message', Lang::get('web.update-success'));
+        return redirect()->route('user.index');
+    }
+
     public function saveImage($picture, $data)
-  {
+    {
     $pathSave = "public/image/user-photo/";
     $name = Str::slug($data->username) . ".jpg";
     $picturePath = $pathSave . $name;
@@ -93,8 +162,8 @@ class UserController extends Controller
     $imgStream = $img->stream();
     Storage::put($picturePath, $imgStream->__toString());
 
-    $data->signature_url = asset(Storage::url($picturePath));
-    $data->signature_path = $picturePath;
+    $data->photo_url = asset(Storage::url($picturePath));
+    $data->photo_path = $picturePath;
   }
 
   public function deleteImage($picturePath)
@@ -102,4 +171,21 @@ class UserController extends Controller
     if(!is_null($picturePath) && Storage::exists($picturePath))
     Storage::delete($picturePath);
   }
+
+    public function delete($id)
+    {
+        $picturePath = User::findOrFail($id);
+
+        if(Storage::delete($picturePath->picture_path)){
+            $picturePath->delete();
+        }
+        try{
+            User::where('id', $id)->delete();
+        } catch(\Exception $errors) {
+            return redirect()->route('user.index')->withErrors(['message' => Lang::get('web.delete-failed')]);
+        }
+        
+        Session::flash('message', Lang::get('web.delete-success'));
+        return redirect()->route('user.index');
+    }
 }

@@ -1,6 +1,20 @@
 @extends('layouts.auth')
 
 @section('content')
+@if($errors->first('message'))
+<div class="col-12">
+  <div class="alert alert-danger" role="alert">
+    {{ $errors->first('message') }}
+  </div>
+</div>
+@endif
+@if(Session::has('message'))
+<div class="col-12">
+  <div class="alert alert-info" role="alert">
+    {{ Session::get('message') }}
+  </div>
+</div>
+@endif
 <div class="container-xxl flex-grow-1 container-p-y">
     <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light">Users</h4>
 
@@ -59,23 +73,12 @@
                           $check = 'warning';
                       }
                     @endphp
-                    <span class="badge btn-{{ $check }}">{{ $role->name }}</span>
+                    <span class="badge bg-label-{{ $check }} me-1">{{ $role->name }}</span>
                   @endforeach
                 </td>
-                <td>
-                    <div class="dropdown">
-                        <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
-                        <i class="bx bx-dots-vertical-rounded"></i>
-                        </button>
-                        <div class="dropdown-menu">
-                        <a class="dropdown-item" href="javascript:void(0);"
-                            ><i class="bx bx-edit-alt me-1"></i> Edit</a
-                        >
-                        <a class="dropdown-item" href="javascript:void(0);"
-                            ><i class="bx bx-trash me-1"></i> Delete</a
-                        >
-                        </div>
-                        </div>
+                <td class="text-start">
+                  <a href="{{ route('user.edit', $data->id) }}" class="btn badge bg-label-info btn-sm btn-loader">Edit</a>
+                  <a href="#" data-href="{{ route('user.delete', $data->id) }}" class="btn badge bg-label-danger btn-sm btn-delete">Delete</a>
                 </td>
             </tr>
             @endforeach
@@ -88,4 +91,39 @@
         </div>
       </div>
     </div>
+    <div class="modal modal-blur fade" id="modal-delete" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-body">
+            <div class="modal-title">Are you sure?</div>
+            <div>Menghapus data akan menghilangkan data secara permanen.</div>
+          </div>
+          <div class="modal-footer">
+            <form method="post" id="delete-cta">
+              {{ csrf_field() }}
+              <input type="hidden" name="_method" value="DELETE">
+              <a class="btn btn-link link-secondary me-auto" data-bs-dismiss="modal">Cancel</a>
+              <button class="btn btn-danger btn-loader">Ya, hapus data</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+@endsection
+@section('js')
+<script>
+  $(".btn-delete").each(function(index) {
+    $(this).attr('data-bs-target', '#modal-delete');
+    $(this).attr('data-bs-toggle', 'modal');
+
+    $(this).click(function() {
+      href = $(this).attr('data-href');
+      $('#delete-cta').attr('action', href);
+    });
+  });
+
+  $("#delete-cta").click(function() {
+    $("#modal-delete").modal('hide');
+  });
+</script>
 @endsection

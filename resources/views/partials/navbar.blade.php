@@ -75,13 +75,13 @@
         </a>
       </li>
 
-      <!-- Tables -->
+      @can('userManagement')
       <li class="menu-item {{ Route::is('user.index') ? 'active' : '' }}">
         <a href="{{ route('user.index') }}" class="menu-link">
           <i class="menu-icon tf-icons bx bx-user"></i>
           <div data-i18n="Tables">User</div>
         </a>
       </li>
-      
+      @endcan
     </ul>
   </aside>

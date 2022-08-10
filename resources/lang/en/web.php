@@ -27,4 +27,5 @@ return [
     'create-failed' => 'Gagal membuat data baru',
     'update-failed' => 'Gagal mengedit data baru',
     'delete-failed' => 'Gagal menghapus data',
+    'data-not-found' => 'Data tidak ditemukan',
 ];
