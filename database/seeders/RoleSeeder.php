@@ -20,6 +20,7 @@ class RoleSeeder extends Seeder
 
         $dashboard = Permission::create(['name' => 'dashboard']);
         $userManagement = Permission::create(['name' => 'userManagement']);
+        $attendanceManagement = Permission::create(['name' => 'attendanceManagement']);
 
         //admin
         $admin->givePermissionTo($dashboard);
@@ -28,5 +29,6 @@ class RoleSeeder extends Seeder
 
         //user
         $user->givePermissionTo($dashboard);
+        $user->givePermissionTo($attendanceManagement);
     }
 }

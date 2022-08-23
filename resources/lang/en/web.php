@@ -24,8 +24,11 @@ return [
     'create-success' => 'Berhasil membuat data',
     'update-success' => 'Berhasil mengedit data',
     'delete-success' => 'Berhasil menghapus data',
+    'attend-success' => 'Berhasil Absen',
     'create-failed' => 'Gagal membuat data baru',
     'update-failed' => 'Gagal mengedit data baru',
     'delete-failed' => 'Gagal menghapus data',
+    'attend-failed' => 'Gagal Absen',
     'data-not-found' => 'Data tidak ditemukan',
+    'attend-already' => 'Anda Sudah Absen',
 ];

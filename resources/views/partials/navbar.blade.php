@@ -83,5 +83,14 @@
         </a>
       </li>
       @endcan
+
+      @can('attendanceManagement')
+      <li class="menu-item {{ Route::is('attendance.index') ? 'active' : '' }}">
+        <a href="{{ route('attendance.index') }}" class="menu-link">
+          <i class="menu-icon tf-icons bx bx-notepad"></i>
+          <div data-i18n="Tables">Attendance</div>
+        </a>
+      </li>
+      @endcan
     </ul>
   </aside>
