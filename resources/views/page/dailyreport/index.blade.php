@@ -1,7 +1,6 @@
 @extends('layouts.auth')
 
-@section('title', 'User')
-
+@section('title', 'Daily Reports')
 
 @section('content')
 @if($errors->first('message'))
@@ -19,14 +18,14 @@
 </div>
 @endif
 <div class="container-xxl flex-grow-1 container-p-y">
-    <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light">Users</h4>
+    <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light">Daily Reports</h4>
 
     <!-- Basic Bootstrap Table -->
     <div class="card">
         <div class="card-body border-bottom py-3">
             <div class="d-flex">
               <div class="text-muted">
-                <a href="{{ route('user.create') }}" class="btn btn-primary btn-sm btn-loader">Create</a>
+                <a href="{{ route('export.excel') }}" class="btn btn-primary btn-sm btn-loader">Export</a>
               </div>
               <div class="ms-auto text-muted">
                 <form>
@@ -43,11 +42,11 @@
           <thead>
             <tr>
               <th class="w-1">No</th>
-              <th>Username</th>
               <th>Name</th>
-              <th>Phone</th>
-              <th>Role</th>
-              <th>Actions</th>
+              <th>Date</th>
+              <th>Clockin</th>
+              <th>Clockout</th>
+              <th>Status</th>
             </tr>
           </thead>
           <tbody class="table-border-bottom-0">
@@ -61,27 +60,23 @@
                     }
                 @endphp
                 <td><span class="text-muted">{{ $no }}</span></td>
-                <td>{{ $data->username}}</td>
-                <td>{{ $data->name}}</td>
-                <td>{{ $data->phone}}</td>
+                <td>{{ $data->user->name}}</td>
+                <td>{{ $data->date}}</td>
+                <td>{{ $data->clockin}}</td>
+                <td>{{ $data->clockout}}</td>
                 <td>
-                  @foreach($data->roles as $role)
+                  @foreach($datas as $stat)
                     @php
-                      switch($role->name)
-                      {
-                        case 'admin':
-                          $check = 'success';
-                          break;
-                        default:
-                          $check = 'warning';
-                      }
+                        if($stat->is_on_time == 1){
+                            $status = 'Hadir';
+                            $check = 'success';
+                        }else{
+                            $status = 'Telambat';
+                            $check = 'warning';
+                        }
                     @endphp
-                    <span class="badge bg-label-{{ $check }} me-1">{{ $role->name }}</span>
+                    <span class="badge bg-label-{{ $check }} me-1">{{ $status }}</span>
                   @endforeach
-                </td>
-                <td class="text-start">
-                  <a href="{{ route('user.edit', $data->id) }}" class="btn badge bg-label-info btn-sm btn-loader">Edit</a>
-                  <a href="#" data-href="{{ route('user.delete', $data->id) }}" class="btn badge bg-label-danger btn-sm btn-delete">Delete</a>
                 </td>
             </tr>
             @endforeach

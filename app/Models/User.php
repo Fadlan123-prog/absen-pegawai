@@ -45,4 +45,10 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+
+    // public function attend()
+    // {
+    //     return $this->belongsTo(Attendances::class, 'user_id');
+    // }
 }

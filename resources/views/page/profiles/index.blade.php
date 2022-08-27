@@ -1,5 +1,8 @@
 @extends('layouts.auth')
 
+@section('title', 'Profiles')
+
+
 @section('content')
     <div class="container text-center">
         <div class="card w-100">

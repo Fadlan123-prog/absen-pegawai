@@ -1,5 +1,7 @@
 @extends('layouts.auth')
 
+@section('title', 'Attendances')
+
 @section('content')
 @if($errors->first('message'))
 <div class="col-12">
@@ -45,7 +47,7 @@
             data-app-light-img="illustrations/man-with-laptop-light.png"
         />
         <div>
-          <a href="javascript:void(0)" class="btn btn-primary">Checkout</a>
+          <a href="{{ route('attendance.checkout')}}" class="btn btn-primary">Checkout</a>
         </div>
       </div>
     </div>
@@ -54,7 +56,7 @@
 <div class="modal modal-blur fade" id="modal-camera" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-md modal-dialog-centered" role="document">
       <div class="modal-content">
-        <div class="modal-body">            
+        <div class="modal-body">
           <form method="POST" action="{{ route('attendance.checkin') }}">
             @csrf
                 <div class="col-md-6">
@@ -86,13 +88,13 @@
     $(".btn-camera").each(function(index) {
       $(this).attr('data-bs-target', '#modal-camera');
       $(this).attr('data-bs-toggle', 'modal');
-  
+
       $(this).click(function() {
         href = $(this).attr('data-href');
         $('#camera-cta').attr('action', href);
       });
     });
-  
+
     $("#camera-cta").click(function() {
       $("#modal-camera").modal('hide');
     });
@@ -132,7 +134,7 @@ function getLocation() {
       document.getElementById("latitude").value = position.coords.latitude;
       document.getElementById("longitude").value = position.coords.longitude;
     }, showError);
-  } else { 
+  } else {
     alert("Geolocation is not supported by this browser.") ;
   }
 }
@@ -140,16 +142,16 @@ function getLocation() {
 function showError(error) {
   switch(error.code) {
     case error.PERMISSION_DENIED:
-      alert("User denied the request for Geolocation.") 
+      alert("User denied the request for Geolocation.")
       break;
     case error.POSITION_UNAVAILABLE:
-      alert("Location information is unavailable.") 
+      alert("Location information is unavailable.")
       break;
     case error.TIMEOUT:
-      alert("The request to get user location timed out.") 
+      alert("The request to get user location timed out.")
       break;
     case error.UNKNOWN_ERROR:
-      alert("An unknown error occurred.") 
+      alert("An unknown error occurred.")
       break;
   }
 }
@@ -158,7 +160,7 @@ function showError(error) {
             'X-CSSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
           }
         });
-    
+
         $.ajax({
           data: JSON.stringify({
               'latitude' : latitude,

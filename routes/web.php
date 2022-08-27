@@ -6,6 +6,7 @@ Use App\Http\Controllers\LoginController;
 Use App\Http\Controllers\DashboardController;
 Use App\Http\Controllers\UserController;
 Use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\DailyReportController;
 
 /*
 |--------------------------------------------------------------------------
@@ -28,7 +29,7 @@ Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard.
 
 //Admin routes
 Route::group(['middleware' => ['role:admin']], function () {
-    
+
     Route::get('user', [UserController::class, 'index'])->name('user.index');
     Route::get('user/create', [UserController::class, 'create'])->name('user.create');
     Route::post('user/create', [UserController::class, 'store'])->name('user.store');
@@ -42,6 +43,12 @@ Route::group(['middleware' => ['role:user']], function(){
     Route::get('attendance', [AttendanceController::class, 'index'])->name('attendance.index');
     Route::get('attendance/create', [AttendanceController::class, 'distance'])->name('attendance.distance');
     Route::post('attendance/create', [AttendanceController::class, 'checkin'])->name('attendance.checkin');
+    Route::get('attendance/checkout', [AttendanceController::class, 'checkout'])->name('attendance.checkout');
+
 });
-   
- Route::get('logout', [LoginController::class, 'logout'])->name('logout.index');
+Route::get('attendance/export', [DailyReportController::class, 'index'])->name('export.attend');
+Route::get('attendance/export', [DailyReportController::class, 'export_excel'])->name('export.excel');
+
+Route::get('daily-report', [DailyReportController::class, 'index'])->name('daily.index');
+
+Route::get('logout', [LoginController::class, 'logout'])->name('logout.index');

@@ -92,5 +92,14 @@
         </a>
       </li>
       @endcan
+
+      @can('dailyReportsManagement')
+      <li class="menu-item {{ Route::is('daily.index') ? 'active' : '' }}">
+        <a href="{{ route('daily.index') }}" class="menu-link">
+          <i class="menu-icon tf-icons bx bx-table"></i>
+          <div data-i18n="Paper">Daily Reports</div>
+        </a>
+      </li>
+      @endcan
     </ul>
   </aside>

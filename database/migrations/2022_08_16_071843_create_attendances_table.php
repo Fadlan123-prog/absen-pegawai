@@ -18,7 +18,10 @@ class CreateAttendancesTable extends Migration
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->date('date');
-            $table->string('status');
+            $table->time('clockin');
+            $table->time('clockout')->nullable();
+            $table->string('status_in');
+            $table->string('status_out')->nullable();
             $table->decimal('lat', 10, 7);
             $table->decimal('lng', 10, 7);
             $table->string('attendance_photo_path');

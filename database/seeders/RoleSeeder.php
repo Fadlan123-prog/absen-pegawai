@@ -21,14 +21,17 @@ class RoleSeeder extends Seeder
         $dashboard = Permission::create(['name' => 'dashboard']);
         $userManagement = Permission::create(['name' => 'userManagement']);
         $attendanceManagement = Permission::create(['name' => 'attendanceManagement']);
+        $dailyreportsManagement = Permission::create(['name' => 'dailyReportsManagement']);
 
         //admin
         $admin->givePermissionTo($dashboard);
         $admin->givePermissionTo($userManagement);
-        
+        $admin->givePermissionTo($dailyreportsManagement);
+
 
         //user
         $user->givePermissionTo($dashboard);
         $user->givePermissionTo($attendanceManagement);
+        $user->givePermissionTo($dailyreportsManagement);
     }
 }

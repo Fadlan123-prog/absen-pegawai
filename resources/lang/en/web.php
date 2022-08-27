@@ -25,10 +25,13 @@ return [
     'update-success' => 'Berhasil mengedit data',
     'delete-success' => 'Berhasil menghapus data',
     'attend-success' => 'Berhasil Absen',
+    'attend-checkout-success' => 'Berhasil Absen Keluar',
     'create-failed' => 'Gagal membuat data baru',
     'update-failed' => 'Gagal mengedit data baru',
     'delete-failed' => 'Gagal menghapus data',
     'attend-failed' => 'Gagal Absen',
     'data-not-found' => 'Data tidak ditemukan',
-    'attend-already' => 'Anda Sudah Absen',
+    'attend-already' => 'Anda Sudah Absen sebelumnya',
+    'not-time-checkout' => 'Belum Waktunya Checkout',
+    'not-attend-yet' => 'Anda belum absen hari ini'
 ];

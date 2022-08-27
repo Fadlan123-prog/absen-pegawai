@@ -51,7 +51,7 @@ class UserController extends Controller
             'confirmPassword' => 'required|same:password',
             'file'  => 'nullable|mimes:jpg',
         ], $messages);
-        
+
         if($validator->fails())
         {
             $validator->errors()->add('message', Lang::get('web.create-failed'));
@@ -68,7 +68,7 @@ class UserController extends Controller
 
         try {
             $role = Role::find($request->role_id);
-            
+
             $data->save();
             $data->assignRole($role->name);
         } catch (\Exception $errors){
@@ -90,7 +90,7 @@ class UserController extends Controller
         }
 
         $roles = Role::all();
-        
+
         return view('page.user.edit', compact('data', 'roles'));
     }
 
@@ -103,15 +103,15 @@ class UserController extends Controller
             'role_id.integer' => Lang::get('web.role_id-integer'),
             'confirmPassword.same' => Lang::get('web.confirm-password-same'),
         ];
-    
+
         $validator = Validator::make($request->all(), [
             'username' => 'required|unique:users,username',
             'name' => 'required',
             'role_id' => 'integer',
             'confirmPassword' => 'same:password',
-            
+
         ], $messages);
-    
+
         if($validator->fails())
         {
             $validator->errors()->add('message', Lang::get('web.update-failed'));
@@ -129,13 +129,13 @@ class UserController extends Controller
         $data->name = $request->name;
         if($request->has('password'));
         $data->password = Hash::make($request->password);
-        
+
         if($request->has('file'))
         {
             $this->deleteImage($data->photo_path);
-            $this->saveImage($request->file, $data);  
-        }   
-              
+            $this->saveImage($request->file, $data);
+        }
+
         try{
             $role = Role::find($id);
 
@@ -143,9 +143,9 @@ class UserController extends Controller
             $data->roles()->sync([$request->input('role_id')]);
         } catch(\Exception $errors) {
             return redirect()->back()
-            ->withInput()->withErrors(['message' => Lang::get('web.update-failed')]);           
+            ->withInput()->withErrors(['message' => Lang::get('web.update-failed')]);
         }
-        
+
         Session::flash('message', Lang::get('web.update-success'));
         return redirect()->route('user.index');
     }
@@ -184,7 +184,7 @@ class UserController extends Controller
         } catch(\Exception $errors) {
             return redirect()->route('user.index')->withErrors(['message' => Lang::get('web.delete-failed')]);
         }
-        
+
         Session::flash('message', Lang::get('web.delete-success'));
         return redirect()->route('user.index');
     }

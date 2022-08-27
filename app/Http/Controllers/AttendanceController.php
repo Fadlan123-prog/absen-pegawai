@@ -30,26 +30,30 @@ class AttendanceController extends Controller
           $dist = acos($dist);
           $dist = rad2deg($dist);
           $miles = $dist * 60 * 1.1515;
-          
+
           if ($unit == "K") {
             $location = ($miles * 1.609344);
           }
         }
 
-        if($location <= 0.1){ 
+        if($location <= 0.1){
           return redirect()->route('attendance.checkin');
         }else{
           return redirect()->route('attendance.checkin');
           // return abort(401, 'Pastikan lokasi anda tidak jauh dari kantor anda');
         }
-        
+
     }
 
     public function checkin(Request $request)
     {
       $validator = Validator::make($request->all(), [
-        'status' => 'required',
+        'status_in' => 'required',
+        'status_out' => 'required',
+        'name' => 'required',
         'date' => 'required',
+        'clockin' => 'required',
+        'clockout' => 'required',
         'lng' => 'required',
         'lat' => 'required',
         'attendance_photo_url' => 'required',
@@ -57,27 +61,31 @@ class AttendanceController extends Controller
         'is_on_time' => 'required',
       ]);
 
-      $user_id = Auth::user()->id;
-
-      $userAttend = Attendances::where('user_id', $user_id)->where('date', Carbon::now())->get();
-      if(count($userAttend) >= 0 && count($userAttend) <= 2){
+      $userAttend = Attendances::where('user_id', Auth::user()->id)->where('date',Carbon::now()->format('Y-m-d'))->get();
+      if(count($userAttend) > 0 ){
         Session::flash('message', Lang::get('web.attend-already'));
         return redirect()->back();
-      }else{
-        $data = new Attendances;
-        $data->status = 'in';
-        $data->date = Carbon::now();
-          if( Carbon::now()->gt(Carbon::createFromFormat('H:i', '06:00')) && !( Carbon::now()->gt(Carbon::createFromFormat('H:i', '10:00')) ) ){
-            $data->is_on_time = true;
-          }elseif( Carbon::now()->gt(Carbon::createFromFormat('H:i', '06:00')) && !( Carbon::now()->gt(Carbon::createFromFormat('H:i', '10:00')) ) ){
-            $data->is_on_time = false;
-          }
-        $data->user_id = Auth::user()->id;
-        $data->lat = $request['latitude']; 
-        $data->lng = $request['longitude']; 
-    
-        $this->saveImage($request->image, $data);
       }
+
+        $data = new Attendances;
+        $data->status_in = 'in';
+        $data->date = Carbon::now();
+        $data->clockin = Carbon::now()->format('H:i');
+          if( Carbon::now()->gt(Carbon::createFromFormat('H:i', '00:00')) && !( Carbon::now()->gt(Carbon::createFromFormat('H:i',  '05:59')) ) ){
+            return abort('404', 'Belum Waktunya Absen');
+          }elseif( Carbon::now()->gt(Carbon::createFromFormat('H:i', '06:00')) && !( Carbon::now()->gt(Carbon::createFromFormat('H:i', '08:00')) ) ){
+            $data->is_on_time = true;
+          }elseif( Carbon::now()->gt(Carbon::createFromFormat('H:i', '10:00')) && !( Carbon::now()->gt(Carbon::createFromFormat('H:i', '14:59')) ) ){
+            $data->is_on_time = false;
+          }else{
+            return abort('404', 'Waktu Absen Sudah Habis`');
+          }
+        $data->user_name = Auth::user()->name;
+        $data->user_id = Auth::user()->id;
+        $data->lat = $request['latitude'];
+        $data->lng = $request['longitude'];
+
+        $this->saveImage($request->image, $data);
 
         try{
           $data->save();
@@ -90,6 +98,35 @@ class AttendanceController extends Controller
         return redirect()->route('attendance.index');
       }
 
+      public function checkout(Request $request){
+        $validator = Validator::make($request->all(), [
+            'clockout' => 'required',
+            'status_out' => 'required',
+        ]);
+        if( Carbon::now()->gt(Carbon::createFromFormat('H:i', '06:00')) && !( Carbon::now()->gt(Carbon::createFromFormat('H:i', '15:00')) ) ){
+            Session::flash('message', Lang::get('web.not-time-checkout'));
+            return redirect()->back();
+        }elseif( Carbon::now()->gt(Carbon::createFromFormat('H:i', '15:00')) && !(Carbon::now()->gt(Carbon::createFromFormat('H:i', '23:59')) )){
+            $userAttend = Attendances::where('user_id', Auth::user()->id)->where('date',Carbon::now()->format('Y-m-d'))->get();
+            if(count($userAttend) >= 1 ){
+                $data->clockout = Carbon::now()->format('H:i');
+                $data->status_out = 'out';
+            }elseif(count($userAttend) <= 0){
+                Session::flash('message', Lang::get('web.not-attend-yet'));
+                return redirect()->back();
+            }
+        }
+        try{
+            $data->save();
+          }catch(\Exception $errors){
+            return redirect()->back()
+            ->withInput()->withErrors(['message' => Lang::get('web.attend-failed') . $errors->getMessage()]);
+          }
+
+          Session::flash('message', Lang::get('web.attend-checkout-success'));
+          return redirect()->route('attendance.index');
+      }
+
     public function saveImage($img, $data)
     {
         $folderPath = "public/image/attendance-picture/";
@@ -97,7 +134,7 @@ class AttendanceController extends Controller
         $image_parts = explode(";base64,", $img);
         $image_type_aux = explode("image/", $image_parts[0]);
         $image_type = $image_type_aux[1];
-        
+
         $image_base64 = base64_decode($image_parts[1]);
         $fileName = uniqid() . '.png';
 
